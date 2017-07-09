@@ -1,0 +1,45 @@
+﻿@{
+    ViewData["Title"] = "Ransom";
+}
+
+@using HelloWorldRansom.ViewModels
+@model ImagesViewModel
+
+<br />
+
+<div>
+    @using (Html.BeginForm("Index", "Home", FormMethod.Post))
+    {
+        <select id="translateTo">
+
+            @foreach (var x in Model.Languages)
+            {
+                @if (x.Key == Model.Language)
+                {
+                    <option selected="selected" value="@x.Key">@x.Value</option>
+                }
+                else
+                {
+                    <option value="@x.Key">@x.Value</option>
+                }
+            }
+        </select>
+
+        <input type="button" value="Translate" onclick="location.href='@Url.Action("Index", "Home")?translateTo=' + $('#translateTo').val()" />
+
+        <br />
+        <br />
+
+        @foreach (var letter in Model.Images)
+        {
+            if (letter != null)
+            {
+                <img src="@Url.Content(letter)" alt="Image" />
+            }
+            else
+            {
+                <span style="display:inline-block; width: 75px;"></span>
+            }
+        }
+    }
+</div>

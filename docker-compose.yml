@@ -1,0 +1,8 @@
+version: '2'
+
+services:
+  helloworldransom:
+    image: helloworldransom
+    build:
+      context: ./HelloWorldRansom
+      dockerfile: Dockerfile
