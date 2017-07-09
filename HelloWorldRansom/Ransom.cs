@@ -11,10 +11,10 @@ namespace HelloWorldRansom
 {
     public class Ransom
     {
-        public IEnumerable<string> GetRansomNote(string demand, string languageOfVictimsRichParents)
+        public IEnumerable<string> GetRansomNote(string demand, string languageOfVictimsRichParents, string flickrKey, string translateKey)
         {
             //Translate the demand into the language of the victims rich parents.
-            demand = Translate(demand, "EN", languageOfVictimsRichParents);
+            demand = Translate(demand, "EN", languageOfVictimsRichParents, translateKey);
 
             //Get rid of any commas or full stops etc
             demand = Regex.Replace(demand, "[^A-Za-z _]", "").ToUpper();
@@ -22,8 +22,7 @@ namespace HelloWorldRansom
             //Get Library of letter images from Flickr One Letter Pool.
             //https://www.flickr.com/groups/oneletter/pool/
             var letterImages = new List<string>();
-            var apiKey = "d128bc14b5140ea7b0dee137c6b7822a";
-            var uri = @"https://api.flickr.com/services/rest/?method=flickr.photos.search&per_page=500&group_id=27034531%40N00&extras=tags&api_key=" + apiKey + "&format=json";
+            var uri = @"https://api.flickr.com/services/rest/?method=flickr.photos.search&per_page=500&group_id=27034531%40N00&extras=tags&api_key=" + flickrKey + "&format=json";
 
             ImageModel library;
             using (var client = new HttpClient())
@@ -59,10 +58,10 @@ namespace HelloWorldRansom
             return letterImages;
         }
 
-        private static string Translate(string text, string from, string to)
+        private static string Translate(string text, string from, string to, string translateKey)
         {
             //Call to Microsoft Translator Api with secure token
-            string uri = "https://api.microsofttranslator.com/v2/http.svc/Translate?appid=Bearer%20" + GetToken() + "&text=" + System.Net.WebUtility.HtmlEncode(text) + "&from=" + from + "&to=" + to;
+            string uri = "https://api.microsofttranslator.com/v2/http.svc/Translate?appid=Bearer%20" + GetToken(translateKey) + "&text=" + System.Net.WebUtility.HtmlEncode(text) + "&from=" + from + "&to=" + to;
 
             using (var client = new HttpClient())
             {
@@ -76,7 +75,7 @@ namespace HelloWorldRansom
             }
         }
 
-        private static string GetToken()
+        private static string GetToken(string translateKey)
         {
             //HACK: Need this empty Content to make the POST call.
             var values = new Dictionary<string, string>
@@ -88,7 +87,7 @@ namespace HelloWorldRansom
             //Call to Azure Cognitive Services with subscription key to get a Bearer Token
             using (var client = new HttpClient())
             {
-                var response = client.PostAsync("https://api.cognitive.microsoft.com/sts/v1.0/issueToken?Subscription-Key=091f9d984ba34ad4b9d433092348e942", content).Result;
+                var response = client.PostAsync("https://api.cognitive.microsoft.com/sts/v1.0/issueToken?Subscription-Key=" + translateKey, content).Result;
 
                 return response.Content.ReadAsStringAsync().Result;
             }
